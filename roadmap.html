@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWAKEN プログラム開発ロードマップ</title>
+<style>
+:root{--bg:#f6f4f0;--card:#fdfcfa;--ink:#2b2a28;--sub:#6f6a63;--blue:#7d8ca3;--deep:#5a6b85;
+--mauve:#a68a94;--sage:#8a9a8b;--sage-deep:#5f7361;--gold:#c9a26a;--line:#e3ded6;--gray:#c9c2b8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;}
+.deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
+section{min-height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:6vh 6vw;position:relative;}
+.kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--deep);font-weight:600;margin-bottom:14px;}
+h1{font-size:clamp(30px,4.6vw,54px);font-weight:700;line-height:1.3;}
+h2{font-size:clamp(20px,2.6vw,30px);font-weight:700;line-height:1.4;margin-bottom:4px;}
+.sub{font-size:clamp(12.5px,1.25vw,15px);color:var(--sub);margin-bottom:20px;max-width:56em;line-height:1.8;}
+.rule{width:56px;height:3px;background:var(--gold);margin:18px 0 20px;}
+.pageno{position:absolute;bottom:3.2vh;right:6vw;font-size:11.5px;color:var(--sub);}
+.lead{font-size:clamp(15px,1.7vw,19px);color:var(--sub);line-height:2;max-width:44em;}
+.chips{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 18px;font-size:13.5px;font-weight:600;}
+.nav-hint{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--sub);opacity:.6;z-index:5;}
+/* level pills */
+.pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;border-radius:999px;padding:3px 12px;border:1px solid;}
+.pill.dir{color:var(--deep);border-color:var(--deep);background:#eef1f5;}
+.pill.def{color:var(--sage-deep);border-color:var(--sage);background:#eef2ee;}
+.pill.word{color:#9a7b3f;border-color:var(--gold);background:#f7f0e2;}
+.pill.impl{color:#7d5f6a;border-color:var(--mauve);background:#f4edf0;}
+.pill.pilot{color:var(--sub);border-color:var(--gray);background:#efedea;}
+/* flow 10 */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:6px;}
+.fstep{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;position:relative;}
+.fstep .n{font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.12em;}
+.fstep .t{font-size:15px;font-weight:700;color:var(--deep);margin:2px 0 4px;}
+.fstep .d{font-size:11.5px;color:var(--sub);line-height:1.65;}
+/* levels table */
+.lv{display:grid;grid-template-columns:170px 1fr 1.6fr;gap:0;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.lv>div{padding:13px 16px;font-size:13px;line-height:1.7;border-bottom:1px solid var(--line);display:flex;align-items:center;}
+.lv>div:nth-last-child(-n+3){border-bottom:none;}
+.lv .h{background:#efece6;font-size:11.5px;font-weight:700;color:var(--sub);letter-spacing:.08em;padding:9px 16px;}
+/* cards grid */
+.grid{display:grid;gap:12px;}
+.g5{grid-template-columns:repeat(5,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px 12px;cursor:pointer;transition:border-color .12s, box-shadow .12s;display:flex;flex-direction:column;gap:5px;}
+.card:hover{border-color:var(--deep);box-shadow:0 4px 14px rgba(90,107,133,.14);}
+.card .cn{font-size:10.5px;font-weight:700;color:var(--gold);letter-spacing:.1em;}
+.card .ct{font-size:14px;font-weight:700;color:var(--deep);line-height:1.45;}
+.card .cd{font-size:11.5px;color:var(--sub);line-height:1.6;flex:1;}
+.card .more{font-size:10.5px;color:var(--blue);font-weight:600;letter-spacing:.05em;}
+/* progress */
+.prog{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.bar{flex:1;height:6px;background:#ece9e3;border-radius:999px;overflow:hidden;}
+.bar i{display:block;height:100%;width:0;background:var(--deep);border-radius:999px;transition:width .25s;}
+.bar.full i{background:var(--sage-deep);}
+.pct{font-size:10.5px;color:var(--sub);font-weight:700;min-width:34px;text-align:right;}
+.pct.full{color:var(--sage-deep);}
+/* checklist */
+.ck{display:flex;align-items:flex-start;gap:9px;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:13px;line-height:1.6;}
+.ck:hover{background:#f2efe9;}
+.ck input{margin-top:4px;accent-color:var(--sage-deep);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
+.ck.on{color:var(--sub);}
+.ck.on .tx{text-decoration:line-through;text-decoration-color:var(--gray);}
+/* modal */
+dialog{border:none;border-radius:18px;padding:0;width:min(880px,92vw);max-height:86vh;background:var(--card);}
+dialog::backdrop{background:rgba(43,42,40,.5);}
+.dlg{padding:26px 30px 24px;overflow-y:auto;max-height:86vh;}
+.dlg .cn{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.12em;}
+.dlg h3{font-size:20px;font-weight:700;color:var(--deep);margin:4px 0 2px;}
+.dlg .jp{font-size:13px;color:var(--sub);margin-bottom:14px;}
+.dlg h4{font-size:13px;font-weight:700;margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
+.dlg ul{list-style:none;margin:0 0 4px;}
+.dlg ul.plain li{font-size:13px;line-height:1.7;padding:3px 0 3px 14px;position:relative;}
+.dlg ul.plain li::before{content:"";position:absolute;left:0;top:.85em;width:5px;height:5px;border-radius:99px;background:var(--blue);}
+.dlg .close{position:sticky;top:0;float:right;font-size:12px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 16px;cursor:pointer;color:var(--sub);font-weight:600;}
+.dlg .close:hover{border-color:var(--deep);color:var(--deep);}
+.dlg .secline{border:0;border-top:1px solid var(--line);margin:16px 0;}
+.dlg .goal{background:#eef1f5;border-radius:12px;padding:10px 14px;font-size:12.5px;color:var(--deep);margin:8px 0 10px;}
+.dlg table{border-collapse:collapse;width:100%;font-size:12.5px;margin:8px 0 4px;}
+.dlg th,.dlg td{border:1px solid var(--line);padding:7px 12px;text-align:left;}
+.dlg th{background:#efece6;font-weight:700;width:120px;}
+/* summary flow */
+.sflow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;}
+.sflow .s{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:12.5px;font-weight:600;}
+.sflow .a{color:var(--gold);font-weight:700;}
+.keyrec{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:14px;padding:18px 22px;margin-top:18px;}
+.keyrec .t{font-size:14px;font-weight:700;color:var(--deep);margin-bottom:8px;}
+.keyrec ol{margin:0 0 8px 1.4em;font-size:13.5px;line-height:1.9;}
+.keyrec p{font-size:12.5px;color:var(--sub);line-height:1.8;}
+/* strategic questions */
+.sq{counter-reset:q;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+.sq .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:13.5px;line-height:1.8;display:flex;gap:12px;}
+.sq .q::before{counter-increment:q;content:counter(q);font-size:15px;font-weight:700;color:var(--gold);min-width:20px;}
+/* mvp */
+.mvpwrap{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 24px;max-width:760px;}
+.note{font-size:12.5px;color:var(--sub);line-height:1.8;margin-top:12px;}
+.reset{position:fixed;top:12px;right:14px;z-index:6;font-size:11px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 14px;color:var(--sub);cursor:pointer;}
+.reset:hover{color:var(--ink);border-color:var(--gray);}
+@media(max-width:900px){.g5,.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr;}.flow{grid-template-columns:repeat(2,1fr);}.sq{grid-template-columns:1fr;}.lv{grid-template-columns:130px 1fr 1.3fr;}}
+</style>
+</head>
+<body>
+<button class="reset" id="resetBtn">チェックをリセット</button>
+<div class="deck">
+
+<section>
+  <div class="kicker">AWAKEN — Expression-Based Human Development Program</div>
+  <h1>プログラム開発ロードマップ</h1>
+  <div class="rule"></div>
+  <p class="lead">何から決めて、何を作り、どう検証するか。思想合意から4週間Pilot、正式版までの全体地図。カードをクリックすると詳細が開き、制作物は完成したらチェックできます。</p>
+  <div class="chips"><span class="chip">15ステージ</span><span class="chip">制作物 112点</span><span class="chip">MVPセット 8点</span><span class="chip">Workbook構成案つき</span></div>
+  <div class="pageno">01</div>
+</section>
+
+<section id="sec2">
+<div class="kicker">Roadmap</div>
+<h2>プログラム開発の全体の流れ</h2>
+<p class="sub">大きく分けると10ステップ。上から順に進みます。</p>
+<div class="flow"><div class="fstep"><span class="n">STEP 1</span><div class="t">Align</div><div class="d">思想・目的・方向性をそろえる</div></div><div class="fstep"><span class="n">STEP 2</span><div class="t">Define</div><div class="d">対象・成果・体験価値を定義する</div></div><div class="fstep"><span class="n">STEP 3</span><div class="t">Extract</div><div class="d">Kenjiが培ってきた知見とメソッドを抽出する</div></div><div class="fstep"><span class="n">STEP 4</span><div class="t">Systemize</div><div class="d">再現可能なメソッドとカリキュラムに体系化する</div></div><div class="fstep"><span class="n">STEP 5</span><div class="t">Design</div><div class="d">各セッションとエクササイズを設計する</div></div><div class="fstep"><span class="n">STEP 6</span><div class="t">Produce</div><div class="d">講師用・参加者用の教材を制作する</div></div><div class="fstep"><span class="n">STEP 7</span><div class="t">Prepare</div><div class="d">運営・安全・測定・募集の仕組みを整える</div></div><div class="fstep"><span class="n">STEP 8</span><div class="t">Pilot</div><div class="d">小規模で実施して検証する</div></div><div class="fstep"><span class="n">STEP 9</span><div class="t">Refine</div><div class="d">結果をもとに改善し、正式版にする</div></div><div class="fstep"><span class="n">STEP 10</span><div class="t">Scale</div><div class="d">講師育成・法人展開・継続プログラムへ広げる</div></div></div>
+<div class="pageno">02</div>
+</section>
+
+<section id="sec3">
+<div class="kicker">How to read</div>
+<h2>判断レベルの見方</h2>
+<p class="sub">各項目を、どこまで細かく決める必要があるかで分けています。以降のステージ詳細に出てくる色付きラベルはこの5種類です。</p>
+<div class="lv"><div class="h">ラベル</div><div class="h">意味</div><div class="h">この段階で必要なこと</div><div><span class="pill dir">方向性を決める</span></div><div>大枠をそろえる</div><div>仮の言葉でもよい。全員が同じ方向を見られればよい</div><div><span class="pill def">定義を決める</span></div><div>プログラムの意味を明確にする</div><div>曖昧さが残らない程度まで文章化する</div><div><span class="pill word">言葉を磨く</span></div><div>ニュアンスや言葉選びを整える</div><div>Web、教材、タイトルなど外部に出る前に精査する</div><div><span class="pill impl">実装を決める</span></div><div>実際の運営方法を決める</div><div>時間、人数、順番、担当、ツールまで決める</div><div><span class="pill pilot">検証して決める</span></div><div>実施前には確定できない</div><div>Pilot後に参加者反応と成果を見て判断する</div></div>
+<div class="pageno">03</div>
+</section>
+
+<section id="sec4">
+<div class="kicker">15 Stages</div>
+<h2>ステージ別一覧</h2>
+<p class="sub">全15ステージ。カードをクリックすると「決めること・確認すること」と「制作物」の詳細が開きます。制作物は完成したらチェック。バーが進捗です。</p>
+<div class="grid g5" id="stageGrid"></div>
+<div class="pageno">04</div>
+</section>
+
+<section id="sec5">
+<div class="kicker">Beyond the name</div>
+<h2>プログラム名以外に決めること</h2>
+<p class="sub">「いつ決めるか」で4つに分類。先に意味と構造、言葉磨きは最後です。</p>
+<div class="grid g4" id="abcdGrid"></div>
+<div class="pageno">05</div>
+</section>
+
+<section id="sec6">
+<div class="kicker">Deliverables</div>
+<h2>制作物の全体一覧</h2>
+<p class="sub">8カテゴリー。カードをクリックするとチェックリストが開きます。</p>
+<div style="max-width:520px;margin-bottom:14px;"><div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:4px;" id="catTotalLabel"></div><div id="catTotal"></div></div><div class="grid g4" id="catGrid"></div>
+<div class="pageno">06</div>
+</section>
+
+<section id="sec7">
+<div class="kicker">Execution order</div>
+<h2>推奨する実行順序</h2>
+<p class="sub">6つのPhaseで進めます。カードをクリックすると各Phaseの中身が開きます。</p>
+<div class="grid g3" id="phaseGrid"></div>
+<div class="pageno">07</div>
+</section>
+
+<section id="sec8">
+<div class="kicker">Summary</div>
+<h2>順番がすべて</h2>
+<p class="sub">最初からプログラム名や細かな表現を決めるのではなく、この順番で進めます。</p>
+<div class="sflow"><span class="s">North Starをそろえる</span><span class="a">→</span><span class="s">対象と変化を決める</span><span class="a">→</span><span class="s">Kenjiのメソッドを抽出する</span><span class="a">→</span><span class="s">再現可能な構造にする</span><span class="a">→</span><span class="s">セッションとエクササイズをつくる</span><span class="a">→</span><span class="s">Kenji用・参加者用の資料をつくる</span><span class="a">→</span><span class="s">安全・測定・運営を整える</span><span class="a">→</span><span class="s">Pilotで検証する</span><span class="a">→</span><span class="s">言葉と内容を最終化する</span></div><div class="keyrec"><div class="t">Key Recommendation — プログラム名の最終決定より先に、この5点をKenjiとAlignする</div><ol><li>誰のためのプログラムか</li><li>どのような変化を届けるか</li><li>Human Expressionとは何か</li><li>Kenji独自のメソッドは何か</li><li>4週間で何を体験させるか</li></ol><p>その後に名前、タグライン、各モジュール名の言葉選びを精査する方が、言葉だけが先行せず、強いプログラムになります。</p></div>
+<div class="pageno">08</div>
+</section>
+
+<section id="sec9">
+<div class="kicker">Strategic Questions</div>
+<h2>Kenjiへの7つの問い</h2>
+<p class="sub">このロードマップを走らせる前に、Kenji自身の言葉で答えてほしい問い。</p>
+<div class="sq"><div class="q"><span>Kenjiがこのプログラムを通して、参加者に最も思い出してほしいものは何か。</span></div><div class="q"><span>Kenjiのクラスで、参加者が変化する瞬間には何が起きているか。</span></div><div class="q"><span>Kenjiにしかできない働きかけは何か。</span></div><div class="q"><span>修了後に参加者が行う、最も象徴的な一つの行動は何か。</span></div><div class="q"><span>このプログラムを受ける前と後で、参加者の言葉はどう変わるか。</span></div><div class="q"><span>身体、感情、表現、リーダーシップのうち、どれを最も中心に置くか。</span></div><div class="q"><span>“Human beings are inherently whole.” を、Kenji自身の言葉ではどう表現するか。</span></div></div>
+<div class="pageno">09</div>
+</section>
+
+<section id="sec10">
+<div class="kicker">MVP</div>
+<h2>最低限必要なMVPセット</h2>
+<p class="sub">Pilotを始めるために、最初からすべてを作る必要はありません。まず必要なのは次の8点。これがあれば8〜12名程度のPilotを比較的安全に実施できます。</p>
+<div class="mvpwrap"><div id="mvpProg" style="margin-bottom:10px;"></div><div id="mvpList"></div></div>
+<div class="pageno">10</div>
+</section>
+
+<section id="sec11">
+<div class="kicker">Workbook</div>
+<h2>Participant Workbook構成案</h2>
+<p class="sub">AWAKEN Foundations Workbook — 自分に戻り、気づき、選び、表現する4週間。カードをクリックすると各Partの中身が開きます。</p>
+<div class="grid g3" id="wbGrid" style="margin-bottom:12px;"></div><div class="card" data-open="wb-spec" style="max-width:300px;"><span class="ct">推奨仕様</span><span class="cd">ページ数・サイズ・形式・デザイン方針</span><span class="more">クリックで表を開く →</span></div>
+<div class="pageno">11</div>
+</section>
+
+</div>
+<div class="nav-hint">スクロールでスライド送り｜カードをクリックで詳細</div>
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+<script>
+
+const DATA = {"stages": [{"n": 1, "en": "Program Alignment", "jp": "プログラムのNorth Starと基本方向性をそろえる", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["このプログラムはなぜ存在するのか", "誰に、どのような変化を届けたいのか", "何を教えるプログラムではなく、何を目覚めさせるプログラムなのか", "プログラム終了後に参加者がどうなっていてほしいか", "自己探究、表現、リーダーシップのどれを中心に置くか", "個人向けか、リーダー向けか、両方か", "Kenji自身のPurposeとの整合性"]}, {"label": "定義を決める", "cls": "def", "items": ["Human Expressionの意味", "Awakeningの意味", "本来の自分の意味", "成長とWholenessの関係"]}, {"label": "言葉を磨く", "cls": "word", "items": ["Purpose、Vision、Core Beliefの最終表現は骨子合意後でよい"]}], "outputs": ["Program Foundation Draft", "North Star Statement", "Program Philosophy", "Purpose / Vision / Mission案", "Program Definition 1ページ", "Alignment Meeting資料", "Decision Log"]}, {"n": 2, "en": "Audience & Outcome Definition", "jp": "対象者と成果を明確にする", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["最初の参加者は誰か", "どのような悩みを持っているか", "どの程度の自己探究経験を想定するか", "個人、リーダー、企業のどこから始めるか"]}, {"label": "定義を決める", "cls": "def", "items": ["参加条件", "対象外となる人", "修了時のLearning Outcome", "行動変化の定義", "成功指標"]}, {"label": "言葉を磨く", "cls": "word", "items": ["顧客が実際に使う悩みの言葉", "「覚醒」など抽象語の外向け表現"]}], "outputs": ["Target Participant Profile", "Persona / Participant Archetype", "Jobs to Be Done", "Before / After Map", "Learning Outcomes", "Success Metrics", "Eligibility Criteria"]}, {"n": 3, "en": "Kenji Method Extraction", "jp": "Kenjiが培ってきた知見、体験、技術を抽出する", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["Kenjiのどの経験や技術を中核にするか", "身体、ヨガ、呼吸、対話、哲学、リーダーシップの比率"]}, {"label": "定義を決める", "cls": "def", "items": ["Kenjiが無意識に行っていること", "参加者の変化を生む働きかけ", "Kenji独自の問い、観察、言葉、順序", "他のヨガやコーチングとの違い", "何をすると参加者の状態が変わるのか"]}, {"label": "実装を決める", "cls": "impl", "items": ["インタビュー回数", "既存クラスや映像の観察方法", "過去の参加者事例の回収方法"]}], "outputs": ["Founder / Method Interview Guide", "Kenji Method Inventory", "Signature Practices List", "Signature Questions List", "Case Story Library", "Existing Content Audit", "Method Extraction Notes"]}, {"n": 4, "en": "Method Systemization", "jp": "Kenjiのメソッドを再現可能な体系にする", "groups": [{"label": "定義を決める", "cls": "def", "items": ["変化が起きるプロセス", "各段階の目的", "段階間の順序", "身体、感情、思考、表現の関係", "一時的な感動と持続的変化の違い"]}, {"label": "言葉を磨く", "cls": "word", "items": ["メソッド名称", "各ステップ名", "英語と日本語のニュアンス", "覚えやすさ、説明しやすさ"]}, {"label": "検証して決める", "cls": "pilot", "items": ["AWAKENが最適か", "6段階か、4段階か", "参加者が自然に理解できるか"]}], "outputs": ["Proprietary Method", "Method Map", "Theory of Change", "Method Definitions", "Core Principles", "Transformation Journey", "Method One-Pager"]}, {"n": 5, "en": "Program Architecture", "jp": "全体構成とプログラム形式を決める", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["4週間Pilotか、8週間本編か", "対面、オンライン、ハイブリッド", "個人向けかグループ向けか"]}, {"label": "実装を決める", "cls": "impl", "items": ["期間", "回数", "1回の時間", "参加人数", "宿題の量", "個別セッションの有無", "ペアワークの有無", "修了後フォロー", "欠席対応", "進行順序"]}, {"label": "検証して決める", "cls": "pilot", "items": ["適切な期間と情報量", "身体ワークと対話の比率"]}], "outputs": ["Program Architecture", "Curriculum Map", "Session Overview", "Participant Journey", "Program Calendar", "Delivery Model", "Pilot Specification"]}, {"n": 6, "en": "Session & Exercise Design", "jp": "各回の内容とエクササイズを具体化する", "groups": [{"label": "定義を決める", "cls": "def", "items": ["各回のLearning Goal", "参加者が持ち帰る気づき", "各エクササイズの目的", "エクササイズ間のつながり"]}, {"label": "実装を決める", "cls": "impl", "items": ["時間配分", "導入方法", "説明内容", "個人ワーク", "ペアワーク", "グループ共有", "Movement", "ジャーナリング", "宿題", "Debriefの問い"]}, {"label": "言葉を磨く", "cls": "word", "items": ["参加者に投げかける問い", "誘導的にならない表現", "安全性に配慮した指示文"]}], "outputs": ["Detailed Session Plans", "Exercise Library", "Session Run Sheets", "Facilitation Scripts", "Debrief Question Bank", "Weekly Practice Assignments", "Movement / Breath Instructions"]}, {"n": 7, "en": "Participant Materials", "jp": "参加者が理解し、書き込み、実践する教材をつくる", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["読み物中心か、書き込み中心か", "印刷、PDF、デジタルの形式", "日本語のみか、日英併記か"]}, {"label": "言葉を磨く", "cls": "word", "items": ["プログラム名称", "各章タイトル", "問いのニュアンス", "説明文のトーン", "専門用語の使い方"]}, {"label": "実装を決める", "cls": "impl", "items": ["ページ数", "記入スペース", "図解", "持ち帰りカード", "宿題ページ", "30日プラン"]}], "outputs": ["Participant Guide", "Participant Workbook", "Weekly Practice Cards", "Reflection Journal Pages", "Personal Expression Manifesto", "30-Day Integration Planner", "Glossary", "Resource List"]}, {"n": 8, "en": "Instructor Materials", "jp": "Kenjiが安定して実施できる講師用資料をつくる", "groups": [{"label": "定義を決める", "cls": "def", "items": ["各セッションで絶対に外せないこと", "自由に変えてよい部分", "参加者に起きうる反応", "Kenjiが観察するポイント"]}, {"label": "実装を決める", "cls": "impl", "items": ["各スライドの話す内容", "時間管理", "問いの順番", "補足事例", "話しすぎた場合の短縮方法", "参加者が反応しない場合の代替案", "強い感情反応への対応"]}, {"label": "言葉を磨く", "cls": "word", "items": ["Kenjiらしい話し方", "説明の比喩", "締めの言葉"]}], "outputs": ["Instructor Deck", "Instructor Notes", "Facilitator Guide", "Full Session Script", "Cue Cards", "Observation Checklist", "Troubleshooting Guide", "Post-Session Reflection Sheet"]}, {"n": 9, "en": "Safety, Ethics & Operations", "jp": "安全性、倫理、運営体制を整える", "groups": [{"label": "定義を決める", "cls": "def", "items": ["このプログラムが扱う範囲", "コーチング、教育、心理療法との境界", "参加者の選択権", "守秘義務", "写真や録画の扱い"]}, {"label": "実装を決める", "cls": "impl", "items": ["申込みフロー", "インテーク", "同意取得", "緊急時対応", "途中退出", "返金や振替", "健康上の注意", "紹介先の専門家", "会場設計", "アシスタントの役割"]}], "outputs": ["Community Agreement", "Consent Form", "Participant Intake Form", "Safety Protocol", "Referral Protocol", "Scope of Practice", "Operations Manual", "Emergency Contact Sheet", "Venue Checklist"]}, {"n": 10, "en": "Measurement & Proof", "jp": "成果を測定し、改善と事例化につなげる", "groups": [{"label": "定義を決める", "cls": "def", "items": ["何を変化と呼ぶか", "どの行動が成果か", "短期成果と長期成果", "自己評価と観察評価の使い分け"]}, {"label": "実装を決める", "cls": "impl", "items": ["測定タイミング", "質問項目", "アンケート形式", "インタビュー方法", "事例使用の同意"]}, {"label": "検証して決める", "cls": "pilot", "items": ["どの指標が本当に有効か", "参加者の負担が適切か"]}], "outputs": ["Baseline Assessment", "End-of-Program Assessment", "30-Day Follow-up", "90-Day Follow-up", "Session Feedback Form", "Case Study Template", "Testimonial Consent Form", "Program Dashboard"]}, {"n": 11, "en": "Naming & Messaging", "jp": "名前と言葉を最終決定する", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["プログラムの印象", "日本語中心か英語中心か", "自己探究、表現、リーダーシップのどれを前面に出すか"]}, {"label": "言葉を磨く", "cls": "word", "items": ["プログラム名", "サブタイトル", "タグライン", "カテゴリー名", "Elevator Pitch", "Web Hero Copy", "各モジュール名", "「Awakening」「Whole」「Expression」の使い方", "宗教的、抽象的に聞こえないか"]}, {"label": "検証して決める", "cls": "pilot", "items": ["参加者に伝わるか", "記憶に残るか", "Kenjiらしいか"]}], "outputs": ["Naming Options", "Naming Criteria", "Final Program Name", "Subtitle / Tagline", "Message Hierarchy", "Elevator Pitch", "Key Message Guide", "Language Guidelines"]}, {"n": 12, "en": "Recruitment & Onboarding", "jp": "適切な参加者を集め、開始前の準備を整える", "groups": [{"label": "定義を決める", "cls": "def", "items": ["誰に届けるか", "参加者に何を約束するか", "何を約束しないか"]}, {"label": "実装を決める", "cls": "impl", "items": ["募集方法", "価格", "定員", "選考の有無", "説明会", "申込み後の案内", "開始前の準備", "リマインド"]}, {"label": "言葉を磨く", "cls": "word", "items": ["募集文", "FAQ", "誇張しない成果表現"]}], "outputs": ["Program One-Pager", "Landing Page Copy", "Information Session Deck", "Application Form", "FAQ", "Welcome Email Sequence", "Pre-Program Guide", "Reminder Templates"]}, {"n": 13, "en": "Pilot Delivery", "jp": "小規模で実施し、仮説を検証する", "groups": [{"label": "実装を決める", "cls": "impl", "items": ["Pilot参加者", "実施日程", "役割分担", "記録方法", "フィードバック回収", "毎回の改善会議"]}, {"label": "検証して決める", "cls": "pilot", "items": ["言葉が伝わったか", "流れは自然だったか", "エクササイズは機能したか", "時間は適切か", "心理的安全性は守られたか", "行動変化が起きたか"]}], "outputs": ["Pilot Delivery Plan", "Attendance Tracker", "Facilitator Log", "Participant Feedback", "Incident Log", "Weekly Review Notes", "Pilot Learning Report"]}, {"n": 14, "en": "Refinement & Finalization", "jp": "Pilot結果をもとに正式版へ改善する", "groups": [{"label": "方向性を再確認する", "cls": "dir", "items": ["North Starから逸れていないか", "本当に提供したい変化が起きたか"]}, {"label": "言葉を磨く", "cls": "word", "items": ["理解されなかった言葉", "参加者が自然に使った言葉", "名称や説明文の修正"]}, {"label": "実装を決める", "cls": "impl", "items": ["削除する内容", "追加する内容", "時間変更", "教材改訂", "次回の価格、人数、期間"]}], "outputs": ["Revised Curriculum", "Workbook v2", "Instructor Guide v2", "Final Program Deck", "Change Log", "Program Evaluation Report", "Official Version 1.0"]}, {"n": 15, "en": "Scale & Certification", "jp": "再現性を高め、他の講師や法人へ展開する", "groups": [{"label": "方向性を決める", "cls": "dir", "items": ["Kenji本人のみが行うか", "他の講師を育成するか", "法人向けに展開するか", "認定制度をつくるか"]}, {"label": "定義を決める", "cls": "def", "items": ["講師として必要な能力", "品質基準", "ブランド／プログラム使用基準"]}, {"label": "実装を決める", "cls": "impl", "items": ["講師研修", "評価方法", "ライセンス", "更新制度", "品質監査"]}], "outputs": ["Facilitator Competency Framework", "Train-the-Trainer Program", "Certification Manual", "Quality Standards", "Licensing Guidelines", "Corporate Version", "Program Expansion Roadmap"]}], "abcd": [{"k": "A", "title": "最初に方向性だけ決めればよいこと", "intro": "この段階では、完璧な言葉にする必要はありません。", "items": ["プログラムの存在目的", "参加者に届けたい本質的な変化", "最初の対象者", "自己探究とリーダーシップの比重", "身体を扱う理由", "Kenjiのメソッドの中心", "個人向けか、法人向けか", "Pilotの形式", "4週間か8週間か", "どこまでをプログラム内で扱うか", "このプログラムが絶対にしないこと", "修了後に参加者が行えるようになること"], "outro": "これらは、まず仮説で構いません。"}, {"k": "B", "title": "定義を明確にする必要があること", "intro": "ここが曖昧だと、プログラム全体がぶれます。", "items": ["Human Expressionとは何か", "Awakeningとは何か", "Authenticityとは何か", "本来の自分とは何か", "Protective Armorとは何か", "成長とは何か", "Leadershipとの関係", "感情と行動の違い", "自由な表現と責任の関係", "一時的な感動と変容の違い", "プログラム成果の定義", "安全性の定義", "ファシリテーターの役割", "心理療法との境界"], "outro": ""}, {"k": "C", "title": "最後に細かく言葉を磨くべきこと", "intro": "骨子が固まる前にここへ時間をかけすぎない方がよいです。", "items": ["プログラム名", "サブタイトル", "タグライン", "Purposeの最終英文", "“whole” の代替表現", "モジュール名", "AWAKENの各頭文字", "「鎧」「覚醒」「本来の自分」の表現", "WebサイトのHero Copy", "Elevator Pitch", "ワークブックの章タイトル", "エクササイズ名", "参加者への問いの語尾", "法人向けの言い換え", "日本語・英語の整合性", "Kenjiらしい話し言葉"], "outro": "言葉は重要ですが、先に意味と構造を決め、その後に言葉を磨く順番が必要です。"}, {"k": "D", "title": "Pilotで検証してから決めること", "intro": "机上では確定しない方がよい項目です。", "items": ["プログラムの最適な期間", "1回の適切な時間", "参加人数", "身体ワークの比率", "対話の深さ", "宿題の量", "個人ワークとグループワークの比率", "AWAKENという名前の理解度", "「鎧」という言葉への反応", "参加者が最も価値を感じるモジュール", "参加者が離脱しやすいポイント", "成果測定の質問数", "修了後フォローの必要性", "適正価格"], "outro": ""}], "cats": [{"name": "Program Strategy", "items": ["Program Foundation Document", "North Star Statement", "Program Philosophy", "Purpose / Vision / Mission", "Target Participant Profile", "Before / After Map", "Theory of Change", "Transformation Journey", "Program Principles", "Program Non-Negotiables"]}, {"name": "Methodology", "items": ["Kenji Method Inventory", "Proprietary Method", "Method Map", "Signature Practices", "Signature Questions", "Competency Framework", "Exercise Library", "Case Story Library"]}, {"name": "Curriculum", "items": ["Program Architecture", "Curriculum Map", "Detailed Session Plans", "Session Run Sheets", "Learning Outcomes", "Weekly Assignments", "30-Day Integration Plan"]}, {"name": "Kenji / Instructor Materials", "items": ["Program Presentation Deck", "Instructor Notes", "Facilitator Guide", "Full Facilitation Script", "Cue Cards", "Question Bank", "Debrief Guide", "Observation Checklist", "Safety and Troubleshooting Guide", "Post-Session Reflection Form"]}, {"name": "Participant Materials", "items": ["Participant Guide", "Participant Presentation Slides", "Participant Workbook", "Weekly Practice Cards", "Reflection Journal", "Body Map", "Armor Map", "Values Worksheet", "Boundary Conversation Planner", "Personal Expression Manifesto", "30-Day Integration Planner", "Resource List", "Glossary"]}, {"name": "Safety and Operations", "items": ["Application Form", "Intake Form", "Consent Form", "Community Agreement", "Scope of Practice", "Safety Protocol", "Referral Protocol", "Emergency Procedure", "Attendance Tracker", "Venue Checklist", "Operations Manual"]}, {"name": "Measurement and Proof", "items": ["Baseline Assessment", "End-of-Program Assessment", "Session Feedback Form", "30-Day Follow-up", "90-Day Follow-up", "Case Study Template", "Testimonial Consent", "Program Dashboard", "Pilot Learning Report", "Change Log"]}, {"name": "Communication and Recruitment", "items": ["Program Name", "Subtitle", "Tagline", "Elevator Pitch", "Program One-Pager", "Landing Page Copy", "Information Session Deck", "FAQ", "Recruitment Messages", "Welcome Email", "Reminder Emails", "Completion Email", "Message and Language Guidelines"]}], "phases": [{"ph": "Phase 1", "en": "Align", "intro": "まずKenjiと合意するもの", "items": ["プログラムのNorth Star", "対象者", "提供したい変化", "Human Expressionの意味", "KenjiのPurposeとの接続", "プログラムがしないこと", "4週間Pilotの方向性"]}, {"ph": "Phase 2", "en": "Extract", "intro": "Kenjiから取り出すもの", "items": ["原体験", "教える上で大切にしていること", "参加者の変化を生んだ実例", "使っている問い", "身体ワーク", "呼吸・Movement", "比喩や言葉", "セッション中に見ているサイン", "無意識に行っている介入", "他の講師との違い"]}, {"ph": "Phase 3", "en": "Systemize", "intro": "整理するもの", "items": ["Transformation Journey", "Kenji Method", "各ステップの定義", "Theory of Change", "Learning Outcomes", "4週間カリキュラム"]}, {"ph": "Phase 4", "en": "Create", "intro": "制作するもの", "items": ["参加者用プログラム資料", "Participant Workbook", "Kenji用Instructor Deck", "Instructor Notes", "Facilitation Script", "Intake / Assessment", "Safety Protocol"]}, {"ph": "Phase 5", "en": "Pilot", "intro": "検証するもの", "items": ["内容が伝わるか", "Kenjiが自然に教えられるか", "参加者の安全性", "時間配分", "実際の行動変化", "不要な内容", "足りない内容"]}, {"ph": "Phase 6", "en": "Refine", "intro": "正式版にするもの", "items": ["Program v1.0", "Workbook v1.0", "Instructor Guide v1.0", "Program Deck v1.0", "Evaluation System", "Recruitment Materials"]}], "wb": [{"part": "Part 0", "en": "Welcome", "jp": "", "goal": null, "pages": ["このプログラムについて", "このプログラムが大切にしていること", "「人は本質的に欠けていない」とは", "プログラムで扱うExpressionの定義", "ワークブックの使い方", "Community Agreement", "自分のペースと選択権", "プログラム開始前の現在地"], "numbered": true}, {"part": "Part 1", "en": "ARRIVE", "jp": "身体と自分に戻る", "goal": "身体の感覚を通して、現在の自分の状態に気づく。", "pages": ["Arrival Check-in", "Body Scan Map", "身体の中の緊張・安心・違和感", "私の身体が伝えていること", "思考と身体の違い", "My Personal Grounding Menu", "1日3回のBody Check-in", "Week 1 Reflection"], "numbered": false}, {"part": "Part 2", "en": "WITNESS", "jp": "鎧とパターンに気づく", "goal": "自分を守るために身につけた反応や役割を、否定せずに観察する。", "pages": ["Protective Armorとは", "My Armor Map", "私が演じやすい役割", "Trigger → Reaction → Protection", "私は何を守ろうとしているのか", "この鎧が助けてくれたこと", "今も必要な鎧／選び直したい鎧", "Daily Pattern Log", "Week 2 Reflection"], "numbered": false}, {"part": "Part 3", "en": "KNOW", "jp": "自分が大切にしているものを知る", "goal": "周囲の期待と、自分の価値観、希望、境界線を区別する。", "pages": ["Shoulds and Wants", "外側の声／内側の声", "Values Selection", "My Top Five Values", "価値観と現在の生活の一致度", "My Yes / My No", "境界線を感じる身体のサイン", "自分にとっての成功", "One Aligned Choice", "Week 3 Reflection"], "numbered": false}, {"part": "Part 4", "en": "EXPRESS", "jp": "自分の選択を表現する", "goal": "自分の内側にあるものを、自分と他者の両方を尊重する形で表現する。", "pages": ["Authentic Expressionとは", "ReactionとExpressionの違い", "What / Why / How", "I Statement", "Boundary Conversation Planner", "言いたいこと／恐れていること", "小さなExpression Experiment", "Expression Project", "Week 4 Reflection"], "numbered": false}, {"part": "Part 5", "en": "INTEGRATE", "jp": "日常で生き続ける", "goal": null, "pages": ["4週間のBefore / After", "私が気づいたパターン", "自分に戻るための実践", "これからも選び直したいこと", "30-Day Integration Plan", "Support System Map", "Setback Plan", "Personal Expression Manifesto", "Final Reflection"], "numbered": false}], "wbspec": [["ページ数", "約50〜65ページ"], ["サイズ", "A4縦またはB5縦"], ["形式", "印刷用PDF＋書き込み可能PDF"], ["デザイン", "余白が多い、静か、ミニマル"], ["文章量", "読ませるより、考えさせる"], ["記入形式", "短文、図、スケール、マッピング"], ["使用場面", "セッション中、宿題、30日間の実践"]], "mvp": ["4週間の詳細カリキュラム", "Participant Workbook", "Facilitator Guide", "各回の進行台本", "Intake Form", "Baseline・終了時・30日後の測定フォーム", "Community Agreement", "Safety Protocol"]};
+const LS = "awaken-roadmap-v1";
+let st = {};
+try{ st = JSON.parse(localStorage.getItem(LS)||"{}"); }catch(e){ st={}; }
+const save = () => localStorage.setItem(LS, JSON.stringify(st));
+const $ = s => document.querySelector(s);
+const esc = t => t.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function progress(keys){
+  const done = keys.filter(k=>st[k]).length;
+  return {done, total:keys.length, pct: keys.length? Math.round(done/keys.length*100):0};
+}
+function progHtml(p){
+  const full = p.pct===100 ? " full":"";
+  return `<div class="prog"><div class="bar${full}"><i style="width:${p.pct}%"></i></div><span class="pct${full}">${p.done}/${p.total}</span></div>`;
+}
+function ckHtml(key, label){
+  const on = st[key] ? " on":"";
+  const chk = st[key] ? " checked":"";
+  return `<label class="ck${on}" data-k="${esc(key)}"><input type="checkbox"${chk}><span class="tx">${esc(label)}</span></label>`;
+}
+const stageKeys = s => s.outputs.map(o=>`s${s.n}:${o}`);
+const catKeys = (c,i) => c.items.map(o=>`c${i}:${o}`);
+const mvpKeys = DATA.mvp.map((m,i)=>`mvp${i}`);
+
+function renderStageCards(){
+  $("#stageGrid").innerHTML = DATA.stages.map(s=>{
+    const p = progress(stageKeys(s));
+    return `<div class="card" data-open="stage-${s.n}"><span class="cn">STAGE ${s.n}</span>
+      <span class="ct">${esc(s.en)}</span><span class="cd">${esc(s.jp)}</span>
+      ${progHtml(p)}<span class="more">クリックで詳細 →</span></div>`;
+  }).join("");
+}
+function renderCatCards(){
+  $("#catGrid").innerHTML = DATA.cats.map((c,i)=>{
+    const p = progress(catKeys(c,i));
+    return `<div class="card" data-open="cat-${i}"><span class="ct">${esc(c.name)}</span>
+      <span class="cd">${c.items.length}点</span>${progHtml(p)}<span class="more">クリックで一覧 →</span></div>`;
+  }).join("");
+  const all = DATA.cats.flatMap((c,i)=>catKeys(c,i));
+  const p = progress(all);
+  $("#catTotal").innerHTML = progHtml(p);
+  $("#catTotalLabel").textContent = `制作物 全${all.length}点`;
+}
+function renderMvp(){
+  $("#mvpList").innerHTML = DATA.mvp.map((m,i)=>ckHtml(`mvp${i}`, (i+1)+". "+m)).join("");
+  $("#mvpProg").innerHTML = progHtml(progress(mvpKeys));
+}
+function renderAbcd(){
+  $("#abcdGrid").innerHTML = DATA.abcd.map(a=>
+    `<div class="card" data-open="abcd-${a.k}"><span class="cn">${a.k}</span>
+     <span class="ct">${esc(a.title)}</span><span class="cd">${esc(a.intro)}</span>
+     <span class="cd">${a.items.length}項目</span><span class="more">クリックで一覧 →</span></div>`).join("");
+}
+function renderPhases(){
+  $("#phaseGrid").innerHTML = DATA.phases.map((p,i)=>
+    `<div class="card" data-open="phase-${i}"><span class="cn">${esc(p.ph.toUpperCase())}</span>
+     <span class="ct">${esc(p.en)}</span><span class="cd">${esc(p.intro)}（${p.items.length}項目）</span>
+     <span class="more">クリックで一覧 →</span></div>`).join("");
+}
+function renderWb(){
+  $("#wbGrid").innerHTML = DATA.wb.map((w,i)=>
+    `<div class="card" data-open="wb-${i}"><span class="cn">${esc(w.part.toUpperCase())}</span>
+     <span class="ct">${esc(w.en)}</span><span class="cd">${esc(w.jp||"導入・合意・現在地")}</span>
+     <span class="cd">${w.pages.length}ページ項目</span><span class="more">クリックで詳細 →</span></div>`).join("");
+}
+
+function modalBody(id){
+  if(id.startsWith("stage-")){
+    const s = DATA.stages[+id.split("-")[1]-1];
+    const p = progress(stageKeys(s));
+    return `<span class="cn">STAGE ${s.n}</span><h3>${esc(s.en)}</h3><div class="jp">${esc(s.jp)}</div>
+      ${s.groups.map(g=>`<h4><span class="pill ${g.cls}">${esc(g.label)}</span></h4>
+        <ul class="plain">${g.items.map(it=>`<li>${esc(it)}</li>`).join("")}</ul>`).join("")}
+      <hr class="secline"><h4>制作物（${s.outputs.length}点） — 完成したらチェック</h4>
+      <div id="mProg">${progHtml(p)}</div>
+      <div>${s.outputs.map(o=>ckHtml(`s${s.n}:${o}`, o)).join("")}</div>`;
+  }
+  if(id.startsWith("cat-")){
+    const i = +id.split("-")[1], c = DATA.cats[i];
+    const p = progress(catKeys(c,i));
+    return `<h3>${esc(c.name)}</h3><div class="jp">制作物 ${c.items.length}点 — 完成したらチェック</div>
+      <div id="mProg">${progHtml(p)}</div>
+      <div>${c.items.map(o=>ckHtml(`c${i}:${o}`, o)).join("")}</div>`;
+  }
+  if(id.startsWith("abcd-")){
+    const a = DATA.abcd.find(x=>x.k===id.split("-")[1]);
+    return `<span class="cn">${a.k}</span><h3>${esc(a.title)}</h3><div class="jp">${esc(a.intro)}</div>
+      <ul class="plain">${a.items.map(it=>`<li>${esc(it)}</li>`).join("")}</ul>
+      ${a.outro?`<hr class="secline"><div class="jp">${esc(a.outro)}</div>`:""}`;
+  }
+  if(id.startsWith("phase-")){
+    const p = DATA.phases[+id.split("-")[1]];
+    return `<span class="cn">${esc(p.ph.toUpperCase())}</span><h3>${esc(p.en)}</h3><div class="jp">${esc(p.intro)}：</div>
+      <ul class="plain">${p.items.map(it=>`<li>${esc(it)}</li>`).join("")}</ul>`;
+  }
+  if(id==="wb-spec"){
+    return `<h3>AWAKEN Foundations Workbook</h3><div class="jp">自分に戻り、気づき、選び、表現する4週間 — 推奨仕様</div>
+      <table>${DATA.wbspec.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td></tr>`).join("")}</table>`;
+  }
+  if(id.startsWith("wb-")){
+    const w = DATA.wb[+id.split("-")[1]];
+    return `<span class="cn">${esc(w.part.toUpperCase())}</span><h3>${esc(w.en)}</h3>
+      ${w.jp?`<div class="jp">${esc(w.jp)}</div>`:""}
+      ${w.goal?`<div class="goal">Learning Goal — ${esc(w.goal)}</div>`:""}
+      <h4>Workbook Pages</h4>
+      <ul class="plain">${w.pages.map((it,i)=>`<li>${w.numbered?(i+1)+". ":""}${esc(it)}</li>`).join("")}</ul>`;
+  }
+  return "";
+}
+
+const dlg = document.getElementById("dlg");
+let openId = null;
+function openModal(id){
+  openId = id;
+  document.getElementById("dlgBody").innerHTML =
+    `<button class="close" onclick="dlg.close()">閉じる ×</button>` + modalBody(id);
+  if(!dlg.open) dlg.showModal();
+}
+dlg.addEventListener("click", e=>{ if(e.target===dlg) dlg.close(); });
+dlg.addEventListener("close", ()=>{ openId=null; refreshAll(); });
+
+document.addEventListener("click", e=>{
+  const card = e.target.closest("[data-open]");
+  if(card){ openModal(card.dataset.open); return; }
+  const ck = e.target.closest(".ck");
+  if(ck){
+    if(e.target.tagName!=="INPUT") return; // labelクリックはブラウザがinputへ転送→input側のイベントだけ処理
+    const k = ck.dataset.k;
+    const input = ck.querySelector("input");
+    st[k] = input.checked; if(!input.checked) delete st[k];
+    save();
+    ck.classList.toggle("on", !!st[k]);
+    if(openId){
+      const wrap = document.getElementById("mProg");
+      if(wrap){
+        let keys=[];
+        if(openId.startsWith("stage-")){const s=DATA.stages[+openId.split("-")[1]-1];keys=stageKeys(s);}
+        if(openId.startsWith("cat-")){const i=+openId.split("-")[1];keys=catKeys(DATA.cats[i],i);}
+        wrap.innerHTML = progHtml(progress(keys));
+      }
+    }
+    refreshAll(false);
+  }
+});
+function refreshAll(rerenderLists=true){
+  renderStageCards(); renderCatCards(); renderAbcd(); renderPhases(); renderWb();
+  if(rerenderLists) renderMvp(); else $("#mvpProg").innerHTML = progHtml(progress(mvpKeys));
+}
+document.getElementById("resetBtn").onclick = ()=>{
+  if(confirm("すべてのチェックをリセットしますか？")){ st={}; save(); refreshAll(); }
+};
+refreshAll();
+if(/^#(stage-|cat-|abcd-|phase-|wb-)/.test(location.hash)){ try{ openModal(location.hash.slice(1)); }catch(e){} }
+
+</script>
+</body>
+</html>
