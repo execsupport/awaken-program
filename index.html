@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWAKEN — 8-Week Human Expression Program</title>
+<style>
+  :root{
+    --bg:#f6f4f0; --card:#fdfcfa; --ink:#2b2a28; --sub:#6f6a63;
+    --blue:#7d8ca3; --deep:#5a6b85; --mauve:#a68a94; --sage:#8a9a8b; --sage-deep:#5f7361;
+    --gold:#c9a26a; --line:#e3ded6; --gray:#c9c2b8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;}
+  .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;}
+  section{height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:5vh 7vw;position:relative;}
+  .kicker{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--deep);font-weight:600;margin-bottom:14px;}
+  h1{font-size:clamp(30px,4.6vw,54px);font-weight:700;line-height:1.3;}
+  h2{font-size:clamp(21px,2.7vw,32px);font-weight:700;line-height:1.4;margin-bottom:6px;}
+  .sub{font-size:clamp(13px,1.3vw,16px);color:var(--sub);margin-bottom:22px;max-width:56em;line-height:1.8;}
+  .pageno{position:absolute;bottom:4vh;right:7vw;font-size:12px;color:var(--sub);}
+  .rule{width:56px;height:3px;background:var(--gold);margin:22px 0 24px;}
+  .lead{font-size:clamp(15px,1.7vw,20px);color:var(--sub);line-height:2;max-width:42em;}
+  .chips{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 20px;font-size:14px;font-weight:600;}
+  .nav-hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--sub);opacity:.6;pointer-events:none;}
+  .click-hint{display:inline-block;font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.08em;border:1px solid var(--gold);border-radius:999px;padding:3px 14px;margin-left:10px;vertical-align:3px;}
+
+  /* ==== slide 2: target checklist ==== */
+  .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:900px;}
+  .check{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;font-size:13.5px;line-height:1.7;display:flex;gap:12px;align-items:flex-start;}
+  .check .m{color:var(--gold);font-weight:700;flex-shrink:0;}
+  .fitnote{margin-top:18px;background:#eef1f5;border:1px solid var(--deep);border-radius:12px;padding:14px 20px;font-size:13.5px;line-height:1.8;max-width:900px;}
+  .fitnote strong{color:var(--deep);}
+
+  /* ==== slide 3: philosophy ==== */
+  .credo{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:22px 28px;max-width:760px;margin-bottom:18px;}
+  .credo .big{font-size:clamp(19px,2.2vw,26px);font-weight:700;line-height:1.6;}
+  .credo .small{font-size:13px;color:var(--sub);line-height:1.8;margin-top:8px;}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px;}
+  .duo .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;}
+  .duo .no{color:var(--sub);}
+  .duo .yes{border-color:var(--deep);background:#eef1f5;}
+  .duo .lab{font-size:10.5px;font-weight:700;letter-spacing:.14em;margin-bottom:6px;}
+  .duo .no .lab{color:var(--gray);}
+  .duo .yes .lab{color:var(--deep);}
+  .duo p{font-size:13px;line-height:1.75;}
+
+  /* ==== slide 4: journey ==== */
+  .journey{display:flex;align-items:stretch;gap:0;max-width:1080px;flex-wrap:nowrap;}
+  .jstep{flex:1;min-width:0;text-align:center;position:relative;padding:0 4px;}
+  .jstep .dot{width:11px;height:11px;border-radius:999px;background:var(--gray);margin:0 auto 10px;position:relative;z-index:2;transition:all .2s;}
+  .jstep.awake .dot{background:var(--deep);}
+  .jstep::before{content:"";position:absolute;top:5px;left:-50%;width:100%;height:1.5px;background:var(--line);}
+  .jstep:first-child::before{display:none;}
+  .jstep .jt{font-size:12.5px;font-weight:700;letter-spacing:.04em;}
+  .jstep.awake .jt{color:var(--deep);}
+  .jstep .jd{font-size:10.5px;color:var(--sub);line-height:1.55;margin-top:3px;}
+  .jstep:hover .dot{transform:scale(1.5);background:var(--gold);}
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:880px;margin-top:26px;}
+  .ba .col{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 22px;}
+  .ba .col.after{border-color:var(--deep);background:#eef1f5;}
+  .ba .bt{font-size:11px;font-weight:700;letter-spacing:.16em;margin-bottom:9px;}
+  .ba .before .bt{color:var(--gray);}
+  .ba .after .bt{color:var(--deep);}
+  .ba ul{list-style:none;}
+  .ba li{font-size:12.5px;line-height:1.55;padding:4px 0 4px 16px;position:relative;}
+  .ba li::before{content:"";position:absolute;left:0;top:12px;width:7px;height:1.5px;background:var(--gold);}
+  .ba .before li::before{background:var(--gray);}
+
+  /* ==== slide 5: method cards ==== */
+  .method{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;max-width:1100px;}
+  .mcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 14px;cursor:pointer;transition:all .18s;position:relative;}
+  .mcard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 6px 18px rgba(90,107,133,.10);}
+  .mcard .letter{font-size:clamp(22px,2.4vw,30px);font-weight:700;color:var(--deep);}
+  .mcard .mw{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--gold);margin:2px 0 8px;}
+  .mcard .mj{font-size:13px;font-weight:700;line-height:1.5;}
+  .mcard .md{font-size:11px;color:var(--sub);line-height:1.6;margin-top:6px;}
+
+  /* ==== slide 6: weeks grid ==== */
+  .weeks{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;max-width:1080px;}
+  .wcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 17px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:3px;}
+  .wcard:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 16px rgba(90,107,133,.10);}
+  .wcard .wk{font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--gold);}
+  .wcard .wt{font-size:14px;font-weight:700;line-height:1.45;}
+  .wcard .we{font-size:10.5px;color:var(--deep);font-weight:600;letter-spacing:.04em;}
+  .wcard .wq{font-size:11px;color:var(--sub);line-height:1.6;margin-top:4px;}
+  .wcard .more{font-size:10px;color:var(--gold);font-weight:700;margin-top:6px;letter-spacing:.08em;}
+
+  /* ==== modal overlay ==== */
+  .ovl{position:fixed;inset:0;background:rgba(43,42,40,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:5vh 6vw;}
+  .ovl.open{display:flex;}
+  .panel{background:var(--card);border-radius:18px;max-width:680px;width:100%;max-height:86vh;overflow-y:auto;padding:34px 40px 30px;position:relative;box-shadow:0 24px 70px rgba(43,42,40,.28);}
+  .panel .pk{font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--gold);margin-bottom:6px;}
+  .panel h3{font-size:21px;font-weight:700;line-height:1.45;margin-bottom:2px;}
+  .panel .pe{font-size:12px;color:var(--deep);font-weight:600;margin-bottom:16px;}
+  .panel .sec{margin-bottom:15px;}
+  .panel .st{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--deep);margin-bottom:6px;}
+  .panel p{font-size:13px;line-height:1.8;}
+  .panel ul{list-style:none;}
+  .panel li{font-size:13px;line-height:1.65;padding:3.5px 0 3.5px 16px;position:relative;}
+  .panel li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:1.5px;background:var(--gold);}
+  .panel .q{background:#f4f1ea;border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 18px;font-size:13.5px;line-height:1.8;font-weight:600;}
+  .panel .hw{background:#eef2ee;border:1px solid var(--line);border-radius:10px;padding:11px 16px;font-size:12.5px;line-height:1.7;color:var(--sage-deep);}
+  .panel .x{position:absolute;top:16px;right:20px;font-size:13px;color:var(--sub);cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:4px 14px;background:var(--bg);font-weight:600;}
+  .panel .x:hover{border-color:var(--gold);color:var(--ink);}
+
+  /* ==== slide 7: session flow ==== */
+  .flow{display:flex;align-items:stretch;gap:8px;max-width:1100px;flex-wrap:nowrap;}
+  .fstep{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 12px;text-align:center;}
+  .fstep .ft{font-size:12px;font-weight:700;line-height:1.45;}
+  .fstep .fd{font-size:10px;color:var(--sub);line-height:1.55;margin-top:3px;}
+  .fstep .fm{font-size:10.5px;color:var(--gold);font-weight:700;margin-top:7px;}
+  .farrow{align-self:center;color:var(--gray);font-size:15px;flex-shrink:0;}
+  .ratio{display:flex;max-width:1100px;margin-top:26px;border-radius:999px;overflow:hidden;border:1px solid var(--line);height:38px;}
+  .rseg{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#fdfcfa;white-space:nowrap;overflow:hidden;}
+  .rl{display:flex;max-width:1100px;margin-top:8px;gap:14px;flex-wrap:wrap;}
+  .rl span{font-size:11px;color:var(--sub);display:flex;align-items:center;gap:6px;}
+  .rl i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+  /* ==== slide 8: promise / safety ==== */
+  .pgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;max-width:1060px;align-items:start;}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 26px;}
+  .pcard.deep{border-color:var(--deep);background:#eef1f5;}
+  .pcard h3{font-size:15px;color:var(--deep);margin-bottom:10px;}
+  .pcard ul{list-style:none;}
+  .pcard li{font-size:12.5px;line-height:1.6;padding:4px 0 4px 17px;position:relative;}
+  .pcard li::before{content:"";position:absolute;left:0;top:13px;width:8px;height:1.5px;background:var(--gold);}
+  .pnote{font-size:11.5px;color:var(--sub);line-height:1.7;margin-top:12px;}
+
+  /* ==== slide 9: manifesto ==== */
+  .mani{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;max-width:860px;counter-reset:mn;}
+  .mitem{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:11px 16px 11px 44px;font-size:12.5px;line-height:1.6;position:relative;counter-increment:mn;}
+  .mitem::before{content:counter(mn);position:absolute;left:15px;top:10px;font-size:13px;font-weight:700;color:var(--gold);}
+  .keep{margin-top:20px;background:#eef2ee;border:1px solid var(--sage);border-radius:12px;padding:13px 20px;font-size:12.5px;line-height:1.75;color:var(--sage-deep);max-width:860px;}
+  .keep strong{color:var(--sage-deep);}
+
+  /* ==== slide 10: outline / CTA ==== */
+  .spec{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;max-width:1020px;}
+  .scard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 18px;}
+  .scard .sl{font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--gold);margin-bottom:5px;}
+  .scard .sv{font-size:15px;font-weight:700;line-height:1.5;}
+  .scard .sd{font-size:10.5px;color:var(--sub);line-height:1.6;margin-top:3px;}
+  .cta{margin-top:26px;background:var(--deep);color:#fdfcfa;border-radius:14px;padding:20px 28px;max-width:1020px;}
+  .cta .ct{font-size:16px;font-weight:700;margin-bottom:5px;}
+  .cta p{font-size:12.5px;line-height:1.8;opacity:.92;}
+
+  @page{size:1280px 720px;margin:0;}
+  @media print{.deck{height:auto;overflow:visible;scroll-snap-type:none;}section{height:100vh;overflow:hidden;page-break-after:always;}section:last-of-type{page-break-after:auto;}.nav-hint,.click-hint,.wcard .more{display:none;}}
+  @media (max-width:820px){
+    .checks,.duo,.ba,.pgrid,.mani{grid-template-columns:1fr;}
+    .method{grid-template-columns:repeat(3,1fr);}
+    .weeks{grid-template-columns:repeat(2,1fr);}
+    .spec{grid-template-columns:repeat(2,1fr);}
+    .journey{flex-wrap:wrap;gap:12px;}
+    .jstep{flex:0 0 30%;}
+    .jstep::before{display:none;}
+    .flow{flex-wrap:wrap;}
+    .fstep{flex:0 0 46%;}
+    .farrow{display:none;}
+    section{height:auto;min-height:100vh;padding:9vh 7vw;}
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 title -->
+<section>
+  <div class="kicker">Expression-Based Human Development Program</div>
+  <h1>AWAKEN</h1>
+  <div class="rule"></div>
+  <p class="lead"><strong>自分を思い出し、自分を生き、人の心を動かす8週間。</strong><br>身体、対話、内省、表現を通して、自分自身とのつながりを取り戻し、本来の自分として選び、内側から人や社会を動かす力を育てるプログラム。</p>
+  <div class="chips"><span class="chip">週1回 120分 × 8週間</span><span class="chip">10〜16名の少人数制</span><span class="chip">修了後30日の実践サポート</span></div>
+  <div class="pageno">1 / 10</div>
+</section>
+
+<!-- 2 target -->
+<section>
+  <div class="kicker">Is This For You</div>
+  <h2>こんな人のためのプログラム</h2>
+  <p class="sub">最も力を発揮するのは、外側では成果を出しながらも、内側で「何かが違う」と感じている人。</p>
+  <div class="checks">
+    <div class="check"><span class="m">—</span>周囲の期待に応えることが得意で、自分の希望は後回しになりやすい</div>
+    <div class="check"><span class="m">—</span>正解を探しすぎて、動けなくなることがある</div>
+    <div class="check"><span class="m">—</span>成果は出ているのに、満たされていない</div>
+    <div class="check"><span class="m">—</span>言いたいことを、うまく表現できないまま飲み込んでいる</div>
+    <div class="check"><span class="m">—</span>責任ある立場で、いつも誰かのために動いている</div>
+    <div class="check"><span class="m">—</span>次のステージには、スキル以外の変化が必要だと感じている</div>
+  </div>
+  <div class="fitnote"><strong>特に:</strong> リーダー、起業家、クリエイター、教育者、コーチ・講師・ファシリテーター、人を支える職業の人、キャリアや人生の転換期にいるプロフェッショナル。</div>
+  <div class="pageno">2 / 10</div>
+</section>
+
+<!-- 3 philosophy -->
+<section>
+  <div class="kicker">Program Philosophy</div>
+  <h2>このプログラムの前提</h2>
+  <p class="sub">参加者を「修正するべき存在」として扱わない。出発点は、ひとつのシンプルな人間観。</p>
+  <div class="credo">
+    <div class="big">人は、本質的に欠けていない。</div>
+    <div class="small">感性、創造性、好奇心、感情、意志、勇気、表現する力 — それらはすでに自分の中にある。人生の中で身につけた役割、期待、恐れ、自己防衛によって、つながりが弱くなっているだけ。</div>
+  </div>
+  <div class="duo">
+    <div class="box no">
+      <div class="lab">しないこと</div>
+      <p>新しい正解を教える。足りないものを外から補う。別の誰かに変える。</p>
+    </div>
+    <div class="box yes">
+      <div class="lab">すること</div>
+      <p>すでに自分の中にあるものに気づき、自分で選び、人生の中で表現できるようにする。</p>
+    </div>
+  </div>
+  <div class="pageno">3 / 10</div>
+</section>
+
+<!-- 4 journey -->
+<section>
+  <div class="kicker">Transformation Journey</div>
+  <h2>8週間で起こる変化の道筋</h2>
+  <p class="sub">多くの人は「役割を生きる」ところから始まる。そこから一歩ずつ、自分の真実を表現できる状態へ。</p>
+  <div class="journey">
+    <div class="jstep"><div class="dot"></div><div class="jt">Role</div><div class="jd">期待される役割を生きる</div></div>
+    <div class="jstep"><div class="dot"></div><div class="jt">Armor</div><div class="jd">失敗や拒絶から自分を守る</div></div>
+    <div class="jstep"><div class="dot"></div><div class="jt">Disconnection</div><div class="jd">自分の感覚が分からなくなる</div></div>
+    <div class="jstep awake"><div class="dot"></div><div class="jt">Awareness</div><div class="jd">身体・感情・パターンに気づく</div></div>
+    <div class="jstep awake"><div class="dot"></div><div class="jt">Choice</div><div class="jd">自分で選べる余白を取り戻す</div></div>
+    <div class="jstep awake"><div class="dot"></div><div class="jt">Expression</div><div class="jd">自分の真実を行動として表す</div></div>
+    <div class="jstep awake"><div class="dot"></div><div class="jt">Resonance</div><div class="jd">その在り方が他者に影響を与える</div></div>
+  </div>
+  <div class="ba">
+    <div class="col before">
+      <div class="bt">BEFORE</div>
+      <ul><li>周囲の期待から判断する</li><li>正解を探し続ける</li><li>感情を抑える・本音を言えない</li><li>失敗を避ける／人生をこなす</li></ul>
+    </div>
+    <div class="col after">
+      <div class="bt">AFTER</div>
+      <ul><li>自分の価値観も含めて判断する</li><li>自分なりの答えを選べる</li><li>感情を情報として扱い、責任ある形で表現できる</li><li>好奇心を持って試す／人生を意識的につくる</li></ul>
+    </div>
+  </div>
+  <div class="pageno">4 / 10</div>
+</section>
+
+<!-- 5 method -->
+<section>
+  <div class="kicker">Core Methodology</div>
+  <h2>The AWAKEN Method — 6つの段階<span class="click-hint">カードをクリック</span></h2>
+  <p class="sub">AWAKENの名前は、そのまま6段階の体験プロセス。話し方の技術からではなく、表現が生まれる内側の状態から育てる。</p>
+  <div class="method">
+    <div class="mcard" data-m="0"><div class="letter">A</div><div class="mw">ARRIVE</div><div class="mj">今ここに戻る</div><div class="md">身体、呼吸、現在の感覚に戻る</div></div>
+    <div class="mcard" data-m="1"><div class="letter">W</div><div class="mw">WITNESS</div><div class="mj">観察する</div><div class="md">感情、思考、鎧、パターンに気づく</div></div>
+    <div class="mcard" data-m="2"><div class="letter">A</div><div class="mw">ALLOW</div><div class="mj">許す</div><div class="md">すぐに変えず、その存在を認める</div></div>
+    <div class="mcard" data-m="3"><div class="letter">K</div><div class="mw">KNOW</div><div class="mj">知る</div><div class="md">価値観、願い、境界線を明確にする</div></div>
+    <div class="mcard" data-m="4"><div class="letter">E</div><div class="mw">EXPRESS</div><div class="mj">表現する</div><div class="md">言葉、行動、創作、選択として表す</div></div>
+    <div class="mcard" data-m="5"><div class="letter">N</div><div class="mw">NAVIGATE</div><div class="mj">日常を生きる</div><div class="md">現実の仕事や関係性に統合する</div></div>
+  </div>
+  <div class="pageno">5 / 10</div>
+</section>
+
+<!-- 6 curriculum -->
+<section>
+  <div class="kicker">Curriculum</div>
+  <h2>8週間のカリキュラム<span class="click-hint">各週をクリックで詳細</span></h2>
+  <p class="sub">週1回120分のセッションと、週15〜30分の個人ワーク。各週の「問い」が、気づきを日常の小さな行動へつなぐ。</p>
+  <div class="weeks">
+    <div class="wcard" data-w="0"><div class="wk">WEEK 0</div><div class="wt">安全・選択・意図を整える</div><div class="we">Orientation</div><div class="wq">この8週間で、どのような自分でありたいですか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="1"><div class="wk">WEEK 1</div><div class="wt">身体と今ここに戻る</div><div class="we">ARRIVE</div><div class="wq">今、この瞬間、身体は何を伝えていますか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="2"><div class="wk">WEEK 2</div><div class="wt">自分の鎧とパターンに気づく</div><div class="we">WITNESS</div><div class="wq">この反応は、私を何から守ろうとしているのでしょうか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="3"><div class="wk">WEEK 3</div><div class="wt">感情と自分の存在を許す</div><div class="we">ALLOW</div><div class="wq">すぐに変えなくてもよいとしたら、何に気づきますか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="4"><div class="wk">WEEK 4</div><div class="wt">自分が大切にしているものを知る</div><div class="we">KNOW</div><div class="wq">期待を横に置いたとき、私は何を大切にしたいのでしょうか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="5"><div class="wk">WEEK 5</div><div class="wt">本音と境界線を表現する</div><div class="we">EXPRESS 1</div><div class="wq">この真実を、自分と相手の両方を尊重しながら、どう伝えられますか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="6"><div class="wk">WEEK 6</div><div class="wt">仕事・関係性・人生を表現として捉える</div><div class="we">EXPRESS 2</div><div class="wq">今の私の生き方は、何を表現していますか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="7"><div class="wk">WEEK 7</div><div class="wt">自分の表現を、人との共鳴へつなげる</div><div class="we">RESONANCE</div><div class="wq">私が本当に生きているものは、周囲にどんな影響を与えていますか。</div><div class="more">詳細を見る</div></div>
+    <div class="wcard" data-w="8"><div class="wk">WEEK 8</div><div class="wt">日常に統合する</div><div class="we">NAVIGATE</div><div class="wq">明日から、どのような小さな選択を続けますか。</div><div class="more">詳細を見る</div></div>
+  </div>
+  <div class="pageno">6 / 10</div>
+</section>
+
+<!-- 7 session design -->
+<section>
+  <div class="kicker">Learning Design</div>
+  <h2>セッションの過ごし方</h2>
+  <p class="sub">120分は、身体・内省・対話・表現を行き来する構成。学びの中心は知識ではなく体験。最後は必ず「日常で何をするか」に着地する。</p>
+  <div class="flow">
+    <div class="fstep"><div class="ft">Arrival Practice</div><div class="fd">身体に戻る</div><div class="fm">15分</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="ft">Check-in</div><div class="fd">今の状態を確認する</div><div class="fm">10分</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="ft">Concept</div><div class="fd">その週の考え方を学ぶ</div><div class="fm">20分</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="ft">Experience</div><div class="fd">身体・内省・対話で体験する</div><div class="fm">35分</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="ft">Expression</div><div class="fd">言葉または行動として表す</div><div class="fm">20分</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="ft">Integration</div><div class="fd">日常の実践を決める</div><div class="fm">15分</div></div>
+    <div class="farrow">→</div>
+    <div class="fstep"><div class="ft">Closing</div><div class="fd"></div><div class="fm">5分</div></div>
+  </div>
+  <div class="ratio">
+    <div class="rseg" style="flex:20;background:#5a6b85;">身体 20%</div>
+    <div class="rseg" style="flex:20;background:#7d8ca3;">内省 20%</div>
+    <div class="rseg" style="flex:20;background:#8a9a8b;">対話 20%</div>
+    <div class="rseg" style="flex:15;background:#a68a94;">表現 15%</div>
+    <div class="rseg" style="flex:15;background:#c9a26a;">講義 15%</div>
+    <div class="rseg" style="flex:10;background:#c9c2b8;">統合 10%</div>
+  </div>
+  <div class="rl">
+    <span><i style="background:#5a6b85"></i>身体・Movement Practice</span>
+    <span><i style="background:#7d8ca3"></i>個人内省・ジャーナリング</span>
+    <span><i style="background:#8a9a8b"></i>ペア・グループ対話</span>
+    <span><i style="background:#a68a94"></i>表現・実践</span>
+    <span><i style="background:#c9a26a"></i>ミニレクチャー</span>
+    <span><i style="background:#c9c2b8"></i>日常への統合設計</span>
+  </div>
+  <div class="pageno">7 / 10</div>
+</section>
+
+<!-- 8 promise & safety -->
+<section>
+  <div class="kicker">Our Promise</div>
+  <h2>約束すること、しないこと</h2>
+  <p class="sub">できない約束はしない。その代わり、安全の設計には一切妥協しない。</p>
+  <div class="pgrid">
+    <div class="pcard deep">
+      <h3>8週間後に目指す状態</h3>
+      <ul>
+        <li>自分が何を感じているかに気づける</li>
+        <li>自分の無意識のパターンを認識できる</li>
+        <li>周囲の期待と自分の意志を区別できる</li>
+        <li>自分の価値観や希望を言葉にできる</li>
+        <li>不安があっても、自分で選択できる</li>
+        <li>本音や境界線を責任ある形で表現できる</li>
+        <li>気づきを日常の行動に変えられる</li>
+      </ul>
+      <div class="pnote">「必ず自信がつく」「人生が一度で変わる」「恐れがなくなる」— そうした約束はしない。</div>
+    </div>
+    <div class="pcard">
+      <h3>安全のために、決してしないこと</h3>
+      <ul>
+        <li>参加者を「壊れている存在」として扱わない</li>
+        <li>感情表現や自己開示を強制しない — すべてのワークは招待</li>
+        <li>涙や感動を変容の証拠としない</li>
+        <li>鎧を悪者として扱わない</li>
+        <li>指導者への依存をつくらない</li>
+        <li>ペースと選択は、常に参加者本人が保持する</li>
+      </ul>
+      <div class="pnote">心理療法や医療の代替ではない。</div>
+    </div>
+  </div>
+  <div class="pageno">8 / 10</div>
+</section>
+
+<!-- 9 manifesto -->
+<section>
+  <div class="kicker">Final Deliverable</div>
+  <h2>修了時に手にするもの — Personal Expression Manifesto</h2>
+  <p class="sub">修了証の代わりに、「自分を生きるための個人原則」を自分の言葉で一枚に。8週間の気づきが、8つの問いへの答えとして残る。</p>
+  <div class="mani">
+    <div class="mitem">私が大切にしたい価値観</div>
+    <div class="mitem">私が身につけてきた鎧</div>
+    <div class="mitem">鎧が現れたときのサイン</div>
+    <div class="mitem">自分に戻るための方法</div>
+    <div class="mitem">私が表現したいもの</div>
+    <div class="mitem">私が守りたい境界線</div>
+    <div class="mitem">私が人や社会に与えたい影響</div>
+    <div class="mitem">これから30日間で行う一つの選択</div>
+  </div>
+  <div class="keep"><strong>修了後も、終わらない。</strong>30日間のIntegration Practiceで、気づきを一時の感動で終わらせず、日常の行動として定着させる。「断れなかった依頼を、理由を添えて断れた」「会議で自分の意見を伝えられた」— そんな小さくて確かな変化へ。</div>
+  <div class="pageno">9 / 10</div>
+</section>
+
+<!-- 10 outline & CTA -->
+<section>
+  <div class="kicker">Program Outline</div>
+  <h2>開催概要</h2>
+  <p class="sub">少人数で、安全に、深く。開始前の個別インテークから修了後30日まで、全体をひとつの体験として設計。</p>
+  <div class="spec">
+    <div class="scard"><div class="sl">期間</div><div class="sv">8週間</div><div class="sd">週1回・120分セッション</div></div>
+    <div class="scard"><div class="sl">人数</div><div class="sv">10〜16名</div><div class="sd">少人数制</div></div>
+    <div class="scard"><div class="sl">形式</div><div class="sv">対面 / ハイブリッド</div><div class="sd">対面とオンラインの併用可</div></div>
+    <div class="scard"><div class="sl">開始前</div><div class="sv">個別インテーク</div><div class="sd">目的の確認と自己評価</div></div>
+    <div class="scard"><div class="sl">週の実践</div><div class="sv">15〜30分</div><div class="sd">日常の中の個人ワーク</div></div>
+    <div class="scard"><div class="sl">サポート</div><div class="sv">ペア / 3人組</div><div class="sd">対話パートナーと歩む</div></div>
+    <div class="scard"><div class="sl">修了後</div><div class="sv">30日フォロー</div><div class="sd">Integration Practice</div></div>
+    <div class="scard"><div class="sl">成果物</div><div class="sv">Manifesto</div><div class="sd">自分を生きるための個人原則</div></div>
+  </div>
+  <div class="cta">
+    <div class="ct">最初の一歩は、60〜90分の体験セッション「RECONNECT」</div>
+    <p>8週間の申し込みの前に、プログラムの空気とアプローチをまず体験。合うかどうかは、身体が教えてくれる。</p>
+  </div>
+  <div class="pageno">10 / 10</div>
+</section>
+
+</div>
+<div class="nav-hint">スクロールでページ送り / カードをクリックで詳細</div>
+
+<!-- modal -->
+<div class="ovl" id="ovl">
+  <div class="panel" id="panel"></div>
+</div>
+
+<script>
+const WEEKS=[
+ {k:"WEEK 0 — ORIENTATION",t:"安全・選択・意図を整える",e:"Safety, Choice and Intention",
+  goal:["プログラムの人間観 —「人は欠けていない」の意味を理解する","心理的・身体的安全のルールと守秘義務を確認する","自己開示は義務ではないことを理解する","自分自身の参加目的を明確にする"],
+  q:"この8週間で、何を達成するかではなく、どのような自分でありたいですか。",
+  hw:"個別インテークと自己評価をもとに、参加目的を言葉にする。"},
+ {k:"WEEK 1 — ARRIVE",t:"身体と今ここに戻る",e:"Return to the Body",
+  goal:["呼吸とグラウンディング、ボディスキャン","Movement Practiceで思考や役割から一度離れる","疲労、緊張、違和感の観察","身体のYes / Noを知る"],
+  q:"今、この瞬間、身体は何を伝えていますか。",
+  hw:"週の実践: 1日3回、30秒のBody Check-in。"},
+ {k:"WEEK 2 — WITNESS",t:"自分の鎧とパターンに気づく",e:"Recognize the Armor",
+  goal:["Protective Armor（鎧）の理解 — 人に合わせる / 完璧を求める / 感情を抑える / 忙しさで守る / 正解を探し続ける","無意識に繰り返している反応・役割のパターンマッピング"],
+  q:"この反応は、私を何から守ろうとしているのでしょうか。",
+  hw:"週の実践: 日常で鎧が現れた場面を3つ記録する。"},
+ {k:"WEEK 3 — ALLOW",t:"感情と自分の存在を許す",e:"Make Space for What Is",
+  goal:["感情と行動を分け、感情を情報として扱う","自己共感と、判断を保留する練習","沈黙と余白、安全な共有"],
+  q:"これをすぐに変えなくてもよいとしたら、何に気づきますか。",
+  hw:"週の実践: 感情が動いた場面で、行動する前に90秒観察する。"},
+ {k:"WEEK 4 — KNOW",t:"自分が大切にしているものを知る",e:"Remember What Matters",
+  goal:["Values Inquiry — 価値観の探究","Wants / Shouldsの整理と内的葛藤の可視化","自分のYes / No、成功の再定義","本来の自分の定義"],
+  q:"周囲の期待を一度横に置いたとき、私は何を大切にしたいのでしょうか。",
+  hw:"週の実践: 価値観に沿った小さな選択を1つ行う。"},
+ {k:"WEEK 5 — EXPRESS 1",t:"本音と境界線を表現する",e:"Voice, Truth and Boundaries",
+  goal:["Authenticityの定義 — 本音と衝動の違い","境界線の伝え方、難しい会話、I Statement","「No」を伝える練習と、相手を尊重した自己表現"],
+  q:"この真実を、自分と相手の両方を尊重しながら、どう伝えられますか。",
+  hw:"週の実践: 現実の関係性の中で、小さな本音または境界線を一つ表現する。"},
+ {k:"WEEK 6 — EXPRESS 2",t:"仕事・関係性・人生を表現として捉える",e:"Life as Expression",
+  goal:["仕事・時間の使い方は何を表現しているか","リーダーシップと自己表現、Creative Expression","人生を作品として見る — Expression Projectの設計"],
+  q:"今の私の生き方は、何を表現していますか。",
+  hw:"週の実践: 小さなExpression Projectを実行する。例: 会議で意見を伝える / 新しい企画を提案する / 必要な休息を選ぶ / 創作を始める。"},
+ {k:"WEEK 7 — RESONANCE",t:"自分の表現を、人との共鳴へつなげる",e:"From Expression to Influence",
+  goal:["Presence — 言葉と行動の一致","Listening、Influence without Control","人を説得することと、人を動かすことの違い","Authentic Leadership"],
+  q:"私が本当に生きているものは、周囲にどのような影響を与えていますか。",
+  hw:"週の実践: 一つの関係性またはチームの中で、自分の在り方を変えてみる。"},
+ {k:"WEEK 8 — NAVIGATE",t:"日常に統合する",e:"Integration and Commitment",
+  goal:["8週間の振り返りとBefore / After","再び鎧が必要になる場面への備え","30日Integration Planの設計","Personal Expression Manifestoの作成と修了共有"],
+  q:"明日から、どのような小さな選択を続けますか。",
+  hw:"最終成果物: Personal Expression Manifesto — 自分を生きるための個人原則。"}
+];
+const METHOD=[
+ {k:"A — ARRIVE",t:"今ここに戻る",e:"The AWAKEN Method 1/6",
+  goal:["思考や役割から一度離れ、身体・呼吸・現在の感覚に戻る","すべてのセッションはここから始まる — 表現の土台は、今ここにいること"],
+  q:"今、この瞬間、身体は何を伝えていますか。",hw:"主にWeek 1で深く体験。"},
+ {k:"W — WITNESS",t:"観察する",e:"The AWAKEN Method 2/6",
+  goal:["感情、思考、鎧、パターンに気づく","変える前に、まず「見る」— 気づきが選択の始まり"],
+  q:"この反応は、私を何から守ろうとしているのでしょうか。",hw:"主にWeek 2で深く体験。"},
+ {k:"A — ALLOW",t:"許す",e:"The AWAKEN Method 3/6",
+  goal:["すぐに変えようとせず、感情や違和感の存在を認める","自己共感と余白が、無理のない変化をつくる"],
+  q:"すぐに変えなくてもよいとしたら、何に気づきますか。",hw:"主にWeek 3で深く体験。"},
+ {k:"K — KNOW",t:"知る",e:"The AWAKEN Method 4/6",
+  goal:["価値観、願い、境界線を明確にする","周囲の期待と、自分の意志を区別する"],
+  q:"私は何を大切にしたいのでしょうか。",hw:"主にWeek 4で深く体験。"},
+ {k:"E — EXPRESS",t:"表現する",e:"The AWAKEN Method 5/6",
+  goal:["言葉、行動、創作、選択として表す","本音と境界線を、責任ある形で — 会話だけでなく、働き方や人生の選択も表現"],
+  q:"今の私の生き方は、何を表現していますか。",hw:"主にWeek 5〜7で深く体験。"},
+ {k:"N — NAVIGATE",t:"日常を生きる",e:"The AWAKEN Method 6/6",
+  goal:["気づきを現実の仕事や関係性に統合する","一時的な感動で終わらせず、続けられる実践に変える"],
+  q:"明日から、どのような小さな選択を続けますか。",hw:"主にWeek 8と修了後30日で深く体験。"}
+];
+const ovl=document.getElementById('ovl'),panel=document.getElementById('panel');
+function openDetail(d){
+  panel.innerHTML='<div class="x">閉じる</div>'
+   +'<div class="pk">'+d.k+'</div><h3>'+d.t+'</h3><div class="pe">'+d.e+'</div>'
+   +'<div class="sec"><div class="st">この週にすること</div><ul>'+d.goal.map(g=>'<li>'+g+'</li>').join('')+'</ul></div>'
+   +'<div class="sec"><div class="st">この週の問い</div><div class="q">'+d.q+'</div></div>'
+   +'<div class="sec"><div class="hw">'+d.hw+'</div></div>';
+  ovl.classList.add('open');
+  panel.querySelector('.x').onclick=close;
+}
+function close(){ovl.classList.remove('open');}
+ovl.addEventListener('click',e=>{if(e.target===ovl)close();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+document.querySelectorAll('.wcard').forEach(c=>c.onclick=()=>openDetail(WEEKS[+c.dataset.w]));
+document.querySelectorAll('.mcard').forEach(c=>c.onclick=()=>openDetail(METHOD[+c.dataset.m]));
+</script>
+</body>
+</html>
